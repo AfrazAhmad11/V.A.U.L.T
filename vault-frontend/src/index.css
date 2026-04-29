@@ -1,0 +1,30 @@
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Exo+2:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --bg-primary: #060610;
+  --bg-secondary: #0d0d1a;
+  --bg-card: #0f0f1e;
+  --accent: #6c63ff;
+  --accent-2: #ff4655;
+  --text-primary: #ffffff;
+  --text-secondary: #8b8ba7;
+  --border: rgba(108, 99, 255, 0.2);
+  --glow: 0 0 40px rgba(108, 99, 255, 0.3);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Exo 2', sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+
+input, select, textarea {
+  font-family: 'Exo 2', sans-serif;
+}

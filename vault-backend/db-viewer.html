@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>vault.db — SQLite Database</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #1e1e2e;
+    color: #cdd6f4;
+    padding: 20px;
+  }
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    background: #313244;
+    border-radius: 8px 8px 0 0;
+    border-bottom: 1px solid #45475a;
+    margin-bottom: 0;
+  }
+  .header .db-icon {
+    width: 22px; height: 22px;
+    background: #89b4fa;
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: bold; font-size: 12px; color: #1e1e2e;
+  }
+  .header .db-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #cdd6f4;
+  }
+  .header .db-path {
+    font-size: 12px;
+    color: #6c7086;
+    margin-left: auto;
+  }
+  .sidebar-layout {
+    display: flex;
+    background: #181825;
+    border-radius: 0 0 8px 8px;
+    border: 1px solid #313244;
+    overflow: hidden;
+    min-height: 620px;
+  }
+  .sidebar {
+    width: 220px;
+    background: #1e1e2e;
+    border-right: 1px solid #313244;
+    padding: 12px 0;
+    flex-shrink: 0;
+  }
+  .sidebar-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #6c7086;
+    padding: 4px 16px 8px;
+    font-weight: 600;
+  }
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.15s;
+    color: #bac2de;
+  }
+  .sidebar-item:hover { background: #313244; }
+  .sidebar-item.active { background: #45475a; color: #89b4fa; font-weight: 600; }
+  .sidebar-item .icon {
+    font-size: 11px;
+    width: 16px; height: 16px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 3px;
+    font-weight: bold;
+  }
+  .sidebar-item .icon.tbl { background: #a6e3a1; color: #1e1e2e; }
+  .sidebar-item .icon.idx { background: #f9e2af; color: #1e1e2e; }
+  .content {
+    flex: 1;
+    padding: 0;
+    overflow-x: auto;
+  }
+  .table-section {
+    margin-bottom: 2px;
+  }
+  .table-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: #313244;
+    border-bottom: 1px solid #45475a;
+    font-weight: 600;
+    font-size: 13px;
+    color: #cdd6f4;
+  }
+  .table-header .badge {
+    background: #89b4fa;
+    color: #1e1e2e;
+    padding: 1px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .table-header .badge.orange { background: #fab387; }
+  .table-header .badge.green { background: #a6e3a1; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  thead th {
+    position: sticky;
+    top: 0;
+    background: #262637;
+    color: #89b4fa;
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 2px solid #45475a;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+  thead th .type {
+    color: #6c7086;
+    font-weight: 400;
+    text-transform: none;
+    font-size: 10px;
+    display: block;
+    letter-spacing: 0;
+  }
+  thead th .pk {
+    color: #f9e2af;
+    font-size: 9px;
+    margin-left: 4px;
+  }
+  tbody tr {
+    border-bottom: 1px solid #2a2a3c;
+  }
+  tbody tr:hover { background: #2a2a3c; }
+  tbody td {
+    padding: 7px 12px;
+    color: #cdd6f4;
+    white-space: nowrap;
+  }
+  tbody td.null {
+    color: #585b70;
+    font-style: italic;
+  }
+  tbody td.number {
+    color: #fab387;
+  }
+  tbody td.text {
+    color: #a6e3a1;
+  }
+  tbody td.pk-val {
+    color: #f9e2af;
+    font-weight: 600;
+  }
+  .section-divider {
+    height: 3px;
+    background: linear-gradient(90deg, #89b4fa 0%, #cba6f7 50%, #f38ba8 100%);
+  }
+  .row-count {
+    padding: 6px 16px;
+    font-size: 11px;
+    color: #6c7086;
+    background: #1e1e2e;
+    border-top: 1px solid #313244;
+  }
+  .status-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
+    background: #313244;
+    border-radius: 0 0 8px 8px;
+    font-size: 11px;
+    color: #6c7086;
+  }
+  .empty-state {
+    padding: 30px 16px;
+    text-align: center;
+    color: #585b70;
+    font-size: 13px;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="db-icon">DB</div>
+  <div class="db-name">vault.db</div>
+  <div class="db-path">D:\V.A.U.L.T\vault-backend\vault.db  •  SQLite 3  •  116 KB</div>
+</div>
+
+<div class="sidebar-layout">
+  <div class="sidebar">
+    <div class="sidebar-title">Tables (9)</div>
+    <div class="sidebar-item active">
+      <div class="icon tbl">T</div>Brackets
+    </div>
+    <div class="sidebar-item active">
+      <div class="icon tbl">T</div>Matches
+    </div>
+    <div class="sidebar-item active">
+      <div class="icon tbl">T</div>Disputes
+    </div>
+    <div class="sidebar-item">
+      <div class="icon tbl">T</div>Tournaments
+    </div>
+    <div class="sidebar-item">
+      <div class="icon tbl">T</div>TournamentRegistrations
+    </div>
+    <div class="sidebar-item">
+      <div class="icon tbl">T</div>Users
+    </div>
+    <div class="sidebar-item">
+      <div class="icon tbl">T</div>Wallets
+    </div>
+    <div class="sidebar-item">
+      <div class="icon tbl">T</div>Transactions
+    </div>
+    <div class="sidebar-item">
+      <div class="icon tbl">T</div>__EFMigrationsHistory
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- BRACKETS TABLE -->
+    <div class="table-section">
+      <div class="table-header">
+        <span>📋 Brackets</span>
+        <span class="badge">1 row</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>BracketId <span class="pk">🔑 PK</span><span class="type">INTEGER</span></th>
+            <th>TournamentId <span class="pk">FK</span><span class="type">INTEGER NOT NULL</span></th>
+            <th>TotalRounds<span class="type">INTEGER NOT NULL</span></th>
+            <th>CreatedAt<span class="type">TEXT NOT NULL</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="pk-val">1</td>
+            <td class="number">1</td>
+            <td class="number">2</td>
+            <td class="text">2026-04-19 16:10:39</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="row-count">Showing 1 of 1 row  •  4 columns</div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- MATCHES TABLE -->
+    <div class="table-section">
+      <div class="table-header">
+        <span>⚔️ Matches</span>
+        <span class="badge orange">3 rows</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>MatchId <span class="pk">🔑 PK</span><span class="type">INTEGER</span></th>
+            <th>BracketId <span class="pk">FK</span><span class="type">INTEGER NOT NULL</span></th>
+            <th>Round<span class="type">INTEGER NOT NULL</span></th>
+            <th>MatchNumber<span class="type">INTEGER NOT NULL</span></th>
+            <th>Player1Id <span class="pk">FK</span><span class="type">INTEGER NULL</span></th>
+            <th>Player2Id <span class="pk">FK</span><span class="type">INTEGER NULL</span></th>
+            <th>WinnerId <span class="pk">FK</span><span class="type">INTEGER NULL</span></th>
+            <th>Player1Score<span class="type">INTEGER NULL</span></th>
+            <th>Player2Score<span class="type">INTEGER NULL</span></th>
+            <th>Status<span class="type">INTEGER NOT NULL</span></th>
+            <th>NextMatchId <span class="pk">FK</span><span class="type">INTEGER NULL</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="pk-val">1</td>
+            <td class="number">1</td>
+            <td class="number">2</td>
+            <td class="number">1</td>
+            <td class="null">NULL</td>
+            <td class="null">NULL</td>
+            <td class="null">NULL</td>
+            <td class="null">NULL</td>
+            <td class="null">NULL</td>
+            <td class="number">0 <span style="color:#6c7086;font-size:10px">(Pending)</span></td>
+            <td class="null">NULL</td>
+          </tr>
+          <tr>
+            <td class="pk-val">2</td>
+            <td class="number">1</td>
+            <td class="number">1</td>
+            <td class="number">1</td>
+            <td class="number">3</td>
+            <td class="number">4</td>
+            <td class="null">NULL</td>
+            <td class="null">NULL</td>
+            <td class="null">NULL</td>
+            <td class="number">0 <span style="color:#6c7086;font-size:10px">(Pending)</span></td>
+            <td class="number">1</td>
+          </tr>
+          <tr>
+            <td class="pk-val">3</td>
+            <td class="number">1</td>
+            <td class="number">1</td>
+            <td class="number">2</td>
+            <td class="number">5</td>
+            <td class="number">6</td>
+            <td class="null">NULL</td>
+            <td class="null">NULL</td>
+            <td class="null">NULL</td>
+            <td class="number">0 <span style="color:#6c7086;font-size:10px">(Pending)</span></td>
+            <td class="number">1</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="row-count">Showing 3 of 3 rows  •  11 columns</div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- DISPUTES TABLE -->
+    <div class="table-section">
+      <div class="table-header">
+        <span>🛡️ Disputes</span>
+        <span class="badge green">0 rows</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>DisputeId <span class="pk">🔑 PK</span><span class="type">INTEGER</span></th>
+            <th>MatchId <span class="pk">FK</span><span class="type">INTEGER NOT NULL</span></th>
+            <th>FiledByUserId <span class="pk">FK</span><span class="type">INTEGER NOT NULL</span></th>
+            <th>Reason<span class="type">TEXT NOT NULL</span></th>
+            <th>EvidenceUrl<span class="type">TEXT NULL</span></th>
+            <th>Status<span class="type">INTEGER NOT NULL</span></th>
+            <th>Resolution<span class="type">TEXT NULL</span></th>
+            <th>CreatedAt<span class="type">TEXT NOT NULL</span></th>
+            <th>ResolvedAt<span class="type">TEXT NULL</span></th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+      <div class="empty-state">No disputes have been filed yet.</div>
+      <div class="row-count">Showing 0 rows  •  9 columns</div>
+    </div>
+
+  </div>
+</div>
+
+<div class="status-bar">
+  <span>Database: vault.db  •  SQLite version 3  •  Entity Framework Core Migrations</span>
+  <span>Tables: 9  •  Indexes: 14  •  Size: 116 KB</span>
+</div>
+
+</body>
+</html>

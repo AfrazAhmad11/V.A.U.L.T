@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "AX6jhoqELHI1D+6M3S5nOms+jpjo+C6oqyMFTJ+AgaU=",
+  "Source": "vault-backend",
+  "BasePath": "_content/vault-backend",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
