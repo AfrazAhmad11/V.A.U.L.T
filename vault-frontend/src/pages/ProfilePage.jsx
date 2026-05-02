@@ -90,8 +90,8 @@ function ProfilePage() {
   }
 
   return (
-    <div style={styles.page}>
-      <div style={styles.inner}>
+    <div style={styles.page} className="container">
+      <div style={styles.inner} className="mobile-stack">
         {/* Left — Avatar & Stats */}
         <div style={styles.sidebar}>
           <div style={styles.avatarWrap}>
@@ -117,15 +117,15 @@ function ProfilePage() {
 
           {/* Campus Badges */}
           {(stats.isInstitutionVerified || stats.campusChampionCount > 0) && (
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '12px' }}>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '12px', justifyContent: 'center' }}>
               {stats.isInstitutionVerified && (
-                <div style={{...styles.roleBadge, backgroundColor: 'rgba(34, 197, 94, 0.15)', border: '1px solid rgba(34, 197, 94, 0.4)', color: '#22c55e'}}>
+                <div style={{...styles.roleBadge, backgroundColor: 'rgba(34, 197, 94, 0.15)', border: '1px solid rgba(34, 197, 94, 0.4)', color: '#22c55e', width: 'auto'}}>
                   <span>🎓</span>
                   <span style={{fontSize:'11px',fontWeight:'700',letterSpacing:'0.5px'}}>Verified Student</span>
                 </div>
               )}
               {stats.campusChampionCount > 0 && (
-                <div style={{...styles.roleBadge, backgroundColor: 'rgba(255, 215, 0, 0.15)', border: '1px solid rgba(255, 215, 0, 0.4)', color: '#FFD700'}}>
+                <div style={{...styles.roleBadge, backgroundColor: 'rgba(255, 215, 0, 0.15)', border: '1px solid rgba(255, 215, 0, 0.4)', color: '#FFD700', width: 'auto'}}>
                   <span>🏆</span>
                   <span style={{fontSize:'11px',fontWeight:'700',letterSpacing:'0.5px'}}>Campus Champion x{stats.campusChampionCount}</span>
                 </div>
@@ -200,6 +200,7 @@ function ProfilePage() {
         </div>
       </div>
     </div>
+
   )
 }
 

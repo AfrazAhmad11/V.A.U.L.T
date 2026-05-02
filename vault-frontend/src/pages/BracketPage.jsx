@@ -186,14 +186,14 @@ function BracketPage() {
     const rounds = getRounds()
 
     return (
-        <div style={styles.page}>
+        <div style={styles.page} className="container">
 
             {/* Header */}
-            <div style={styles.header}>
+            <div style={styles.header} className="mobile-stack">
                 <Link to="/tournaments" style={styles.backLink}>← Back to Tournaments</Link>
                 <div>
                     <p style={styles.eyebrow}>● LIVE BRACKET</p>
-                    <h1 style={styles.title}>Tournament Bracket</h1>
+                    <h1 style={{...styles.title, fontSize: 'clamp(28px, 8vw, 42px)'}}>Tournament Bracket</h1>
                     <p style={styles.sub}>
                         {bracket.totalRounds} Rounds · {bracket.matches?.length} Matches Total
                     </p>
@@ -207,6 +207,7 @@ function BracketPage() {
                     ))}
                 </div>
             </div>
+
 
             {/* Success Message */}
             {successMsg && (
@@ -225,7 +226,7 @@ function BracketPage() {
             )}
 
             {/* Bracket Tree */}
-            <div style={styles.bracketContainer}>
+            <div style={styles.bracketContainer} className="mobile-scroll">
                 {rounds.map(([round, matches]) => (
                     <div key={round} style={styles.roundColumn}>
 

@@ -39,9 +39,9 @@ function LeaderboardPage() {
   }
 
   return (
-    <div style={s.page}>
+    <div style={s.page} className="container">
       {/* Header */}
-      <div style={s.header}>
+      <div style={s.header} className="mobile-stack">
         <div style={s.hIcon}>
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFD700" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C7 4 9 8 12 8s5-4 7.5-4a2.5 2.5 0 0 1 0 5H18"/>
@@ -51,31 +51,31 @@ function LeaderboardPage() {
         </div>
         <div>
           <p style={s.eyebrow}>● GLOBAL RANKINGS</p>
-          <h1 style={s.title}>Leaderboard</h1>
+          <h1 style={{...s.title, fontSize: 'clamp(28px, 8vw, 36px)'}}>Leaderboard</h1>
           <p style={s.sub}>Top players and campuses ranked by tournament match wins</p>
         </div>
         
         {/* Tabs */}
-        <div style={{ display: 'flex', gap: '8px', marginLeft: 'auto', marginRight: '20px' }}>
+        <div style={{ display: 'flex', gap: '8px', marginLeft: {xs: 0, md: 'auto'}, marginRight: {xs: 0, md: '20px'}, width: {xs: '100%', md: 'auto'}, overflowX: 'auto' }} className="mobile-scroll">
           <button 
             onClick={() => setActiveTab('Players')} 
-            style={{ ...s.filterBtn, backgroundColor: activeTab === 'Players' ? '#6C63FF' : 'transparent', color: activeTab === 'Players' ? '#fff' : '#8B8BA7', border: '1px solid rgba(108,99,255,0.2)', fontSize: '14px', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer' }}>
-            👤 Top Players
+            style={{ ...s.filterBtn, backgroundColor: activeTab === 'Players' ? '#6C63FF' : 'transparent', color: activeTab === 'Players' ? '#fff' : '#8B8BA7', border: '1px solid rgba(108,99,255,0.2)', fontSize: '14px', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+            👤 Players
           </button>
           <button 
             onClick={() => setActiveTab('Campuses')} 
-            style={{ ...s.filterBtn, backgroundColor: activeTab === 'Campuses' ? '#6C63FF' : 'transparent', color: activeTab === 'Campuses' ? '#fff' : '#8B8BA7', border: '1px solid rgba(108,99,255,0.2)', fontSize: '14px', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer' }}>
-            🏛️ Top Campuses
+            style={{ ...s.filterBtn, backgroundColor: activeTab === 'Campuses' ? '#6C63FF' : 'transparent', color: activeTab === 'Campuses' ? '#fff' : '#8B8BA7', border: '1px solid rgba(108,99,255,0.2)', fontSize: '14px', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+            🏛️ Campuses
           </button>
         </div>
-
+ 
         {/* Institution Filter MUI Dropdown */}
         {activeTab === 'Players' && (
-        <FormControl sx={{ minWidth: 220 }} size="small">
-          <InputLabel sx={{ color: '#8B8BA7' }}>Filter by Institution</InputLabel>
+        <FormControl sx={{ minWidth: {xs: '100%', md: 220} }} size="small">
+          <InputLabel sx={{ color: '#8B8BA7' }}>Institution</InputLabel>
           <Select
             value={institutionFilter}
-            label="Filter by Institution"
+            label="Institution"
             onChange={(e) => setInstitutionFilter(e.target.value)}
             sx={{
               color: '#fff',
@@ -94,11 +94,6 @@ function LeaderboardPage() {
           </Select>
         </FormControl>
         )}
-
-        <div style={{ ...s.totalBadge, marginLeft: '10px' }}>
-          <span style={s.totalNum}>{activeTab === 'Players' ? players.length : campuses.length}</span>
-          <span style={s.totalLabel}>{activeTab === 'Players' ? 'Players' : 'Campuses'}</span>
-        </div>
       </div>
 
       {loading ? (
@@ -112,7 +107,7 @@ function LeaderboardPage() {
         <>
           {/* Top 3 Podium */}
           {activeTab === 'Players' && players.length >= 3 && (
-            <div style={s.podium}>
+            <div style={s.podium} className="mobile-hide">
               {[1, 0, 2].map(idx => {
                 const p = players[idx]
                 if (!p) return null
@@ -140,8 +135,8 @@ function LeaderboardPage() {
           )}
 
           {/* Full Table */}
-          <div style={s.tableWrap}>
-            <table style={s.table}>
+          <div style={s.tableWrap} className="mobile-scroll">
+            <table style={{...s.table, minWidth: {xs: '700px', md: '100%'}}}>
               <thead>
                 {activeTab === 'Players' ? (
                   <tr>

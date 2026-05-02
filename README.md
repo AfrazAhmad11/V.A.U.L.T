@@ -23,19 +23,17 @@
 
 ---
 
-## About the Project
-
 **V.A.U.L.T** is a full-stack web application designed to streamline competitive gaming tournament management across Pakistan. It enables organizers to create and manage tournaments, players to register and compete in single-elimination brackets, and admins to oversee disputes and match integrity. 
 
-It features an integrated **Dual Economy (Fiat + Premium Currency)** and advanced **Collegiate Esports** logic to handle inter-varsity rivalries.
+It features an integrated **Dual Economy (Fiat + Premium Currency)** and advanced **Collegiate Esports** logic to handle inter-varsity rivalries. The platform is built with a high-performance **Cyberpunk Glassmorphism** aesthetic, ensuring a premium feel across all devices.
 
 ### Key Highlights
-- Real-time bracket generation with rank-based seeding and **SignalR Live WebSockets**
-- Role-based access control (Player / Organizer / Admin)
-- Match score reporting with automatic winner advancement
-- Dispute filing and resolution system
-- In-app Dual Wallet system (PKR & Vault Points) integrated with Stripe API
-- "University Wars" collegiate matching & `.edu` verification
+- **Real-time Engine**: Bracket generation with rank-based seeding and **SignalR Live WebSockets**.
+- **Visual Excellence**: Bespoke Cyberpunk Glassmorphism UI with custom animations and official brand assets.
+- **Responsive Architecture**: Fully optimized for Mobile (390px+) and Ultra-Wide Desktop resolutions.
+- **Dual Wallet System**: PKR & Vault Points (VP) integration with **Stripe API** (Mock/Live modes).
+- **Collegiate Wars**: University-locked tournament logic with `.edu` verification.
+- **Scale (Final Demo State)**: 5,000+ Registered Players, 500+ Tournaments Hosted, 50+ Verified Universities.
 
 ---
 
@@ -44,7 +42,8 @@ It features an integrated **Dual Economy (Fiat + Premium Currency)** and advance
 | Layer | Technology | Version |
 |-------|-----------|---------|
 | **Frontend** | React + Vite | React 19, Vite 8 |
-| **UI Library** | Material UI (MUI) | 7.x |
+| **Styling** | Vanilla CSS + Inline Styles | Cyberpunk Glassmorphism |
+| **Responsive** | Custom Media Queries | Mobile-First Stacking |
 | **HTTP Client** | Axios | 1.x |
 | **Routing** | React Router DOM | 7.x |
 | **Real-time Engine** | SignalR | @microsoft/signalr |

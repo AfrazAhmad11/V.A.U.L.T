@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react'
 import api from '../api/config'
 
 const shopItems = [
-  { id: 1, name: 'Steam Gift Card ($10)', cost: 5000, img: 'https://cdn.cloudflare.steamstatic.com/store/about/home/card1.png', tag: 'Gaming', color: '#1A9FFF' },
-  { id: 2, name: 'Xbox Game Pass (1 Month)', cost: 7500, img: 'https://cdn.discordapp.com/attachments/1062006734180479006/1098679075727659178/xbox.png', tag: 'Subscription', color: '#107C10' },
-  { id: 3, name: 'Amazon Gift Card ($20)', cost: 10000, img: 'https://m.media-amazon.com/images/I/41K-sS0n69L.jpg', tag: 'Shopping', color: '#FF9900' },
+  { id: 1, name: 'Steam Gift Card ($10)', cost: 5000, img: '/steam.png', tag: 'Gaming', color: '#1A9FFF' },
+  { id: 2, name: 'Xbox Game Pass (1 Month)', cost: 7500, img: '/xbox.png', tag: 'Subscription', color: '#107C10' },
+  { id: 3, name: 'Amazon Gift Card ($20)', cost: 10000, img: '/amazon.png', tag: 'Shopping', color: '#FF9900' },
 ]
 
 function ShopPage() {
@@ -67,7 +67,10 @@ function ShopPage() {
       <div style={styles.balanceCard}>
         <div>
           <p style={styles.balanceLabel}>Your Vault Points</p>
-          <p style={styles.balanceAmount}>💎 {vp.toLocaleString()} VP</p>
+          <p style={styles.balanceAmount}>
+            <img src="/vault-points.png" alt="VP" style={{width:'32px', height:'32px', verticalAlign:'middle', marginRight:'8px'}} />
+            {vp.toLocaleString()} VP
+          </p>
         </div>
         <a href="/profile" style={styles.convertBtn}>+ Get More VP</a>
       </div>
@@ -86,12 +89,15 @@ function ShopPage() {
           <div key={item.id} style={styles.card}>
             <div style={{...styles.imgWrap, backgroundColor: item.color + '22'}}>
               <span style={{...styles.tag, color: item.color, border: `1px solid ${item.color}44`}}>{item.tag}</span>
-              <img src={item.img} alt={item.name} style={styles.img} onError={(e) => e.target.style.display='none'} />
+              <img src={item.img} alt={item.name} style={styles.img} />
             </div>
             <div style={styles.body}>
               <h3 style={styles.cardTitle}>{item.name}</h3>
               <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginTop:'16px'}}>
-                <span style={styles.cost}>💎 {item.cost.toLocaleString()} VP</span>
+                <span style={styles.cost}>
+                  <img src="/vault-points.png" alt="VP" style={{width:'20px', height:'20px', verticalAlign:'middle', marginRight:'4px'}} />
+                  {item.cost.toLocaleString()} VP
+                </span>
                 <button 
                   onClick={() => handlePurchase(item)} 
                   disabled={purchasing === item.id || vp < item.cost}
@@ -105,6 +111,7 @@ function ShopPage() {
         ))}
       </div>
     </div>
+
   )
 }
 

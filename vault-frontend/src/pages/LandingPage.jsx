@@ -29,10 +29,10 @@ const tournaments = [
 ]
 
 const stats = [
-  { num: '2,400+', label: 'Registered Players' },
-  { num: '180+', label: 'Tournaments Hosted' },
-  { num: 'PKR 8L+', label: 'Prize Money Paid' },
-  { num: '12', label: 'Cities Active' },
+  { num: '5,000+', label: 'Registered Players' },
+  { num: '500+', label: 'Tournaments Hosted' },
+  { num: 'PKR 15L+', label: 'Prize Money Paid' },
+  { num: '50+', label: 'Verified Universities' },
 ]
 
 function TournamentCard({ t, index }) {
@@ -117,10 +117,10 @@ function LandingPage() {
           <div style={{ ...styles.heroBgOverlay, background: `radial-gradient(ellipse at 70% 50%, ${ft.accent}18 0%, #060610 60%)` }} />
         </div>
 
-        <div style={styles.heroInner}>
+        <div style={styles.heroInner} className="mobile-stack container">
 
           {/* ── LEFT: Text + Dots ── */}
-          <div style={styles.heroLeft}>
+          <div style={styles.heroLeft} className="mobile-stack">
             <div style={styles.heroBadge}>🇵🇰 Pakistan's #1 Esports Platform</div>
             <h1 style={styles.heroTitle}>
               YOUR LEGEND<br />
@@ -129,7 +129,7 @@ function LandingPage() {
               </span>
             </h1>
             <p style={styles.heroSub}>
-              Compete in skill-verified tournaments, win real prize money via JazzCash & EasyPaisa.
+              Compete in skill-verified tournaments, win real prize money via our Stripe-powered Dual Economy.
               No smurfs. No fraud. Just pure competition.
             </p>
             <div style={styles.heroBtns}>
@@ -153,7 +153,7 @@ function LandingPage() {
           </div>
 
           {/* ── RIGHT: Featured Card + Thumbnail Strip ── */}
-          <div style={styles.heroRight}>
+          <div style={styles.heroRight} className="mobile-hide">
 
             {/* Main Featured Card */}
             <div style={{ ...styles.featuredCard, borderColor: ft.accent + '44', boxShadow: `0 24px 60px rgba(0,0,0,0.7), 0 0 40px ${ft.accent}18` }}>
@@ -246,7 +246,7 @@ function LandingPage() {
       </div>
 
       {/* ── STATS BAR ── */}
-      <div style={styles.statsBar}>
+      <div style={styles.statsBar} className="mobile-stack">
         {stats.map((s, i) => (
           <div key={i} style={styles.statItem}>
             <span style={styles.statNum}>{s.num}</span>
@@ -256,8 +256,8 @@ function LandingPage() {
       </div>
 
       {/* ── FEATURED TOURNAMENTS ── */}
-      <div style={styles.section}>
-        <div style={styles.sectionHeader}>
+      <div style={styles.section} className="container">
+        <div style={styles.sectionHeader} className="mobile-stack">
           <div>
             <p style={styles.sectionEyebrow}>● LIVE NOW</p>
             <h2 style={styles.sectionTitle}>Featured Tournaments</h2>
@@ -270,25 +270,41 @@ function LandingPage() {
       </div>
 
       {/* ── WHY VAULT ── */}
-      <div style={styles.whySection}>
+      <div style={styles.whySection} className="container">
         <p style={styles.sectionEyebrow}>● WHY V.A.U.L.T.</p>
         <h2 style={styles.sectionTitle}>Built for Pakistani Gamers</h2>
-        <div style={styles.featureGrid}>
+        <div style={styles.featureGrid} className="mobile-stack">
           {[
-            { title: 'Automated Brackets', desc: 'Smart single-elimination brackets with rank-based seeding. No manual work — just compete.', color: '#6C63FF',
-              svg: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#6C63FF" strokeWidth="2"><rect x="2" y="3" width="6" height="4" rx="1"/><rect x="16" y="3" width="6" height="4" rx="1"/><rect x="16" y="17" width="6" height="4" rx="1"/><rect x="2" y="17" width="6" height="4" rx="1"/><path d="M5 7v3a1 1 0 001 1h4M19 7v3a1 1 0 01-1 1h-4M12 11v5M5 17v-1a1 1 0 011-1h4M19 17v-1a1 1 0 00-1-1h-4"/></svg> },
-            { title: 'City Leaderboards', desc: "Compete for your city's honor. Climb the rankings in Faisalabad, Lahore, Islamabad & more.", color: '#22C55E',
-              svg: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg> },
-            { title: 'Dispute Resolution', desc: 'Upload evidence, file disputes, and get fair verdicts from tournament organizers. Transparent & fair.', color: '#F59E0B',
-              svg: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg> },
-            { title: 'Role-Based Access', desc: 'Players compete, Organizers manage tournaments, Admins oversee everything. Clean hierarchy.', color: '#EF4444',
-              svg: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#EF4444" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> },
+            {
+              title: 'Real-Time Brackets', desc: 'Watch tournaments unfold live. SignalR WebSockets update the bracket for everyone the millisecond a score is reported.', color: '#6C63FF',
+              svg: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#6C63FF" strokeWidth="2"><rect x="2" y="3" width="6" height="4" rx="1" /><rect x="16" y="3" width="6" height="4" rx="1" /><rect x="16" y="17" width="6" height="4" rx="1" /><rect x="2" y="17" width="6" height="4" rx="1" /><path d="M5 7v3a1 1 0 001 1h4M19 7v3a1 1 0 01-1 1h-4M12 11v5M5 17v-1a1 1 0 011-1h4M19 17v-1a1 1 0 00-1-1h-4" /></svg>
+            },
+            {
+              title: 'University Wars', desc: 'Represent your campus. Join exclusive institution-locked tournaments, earn the Campus Champion badge, and climb the inter-varsity leaderboard.', color: '#22C55E',
+              svg: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2"><path d="M12 14l9-5-9-5-9 5 9 5z" /><path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" /><path d="M12 14v7" /></svg>
+            },
+            {
+              title: 'Dual Economy & Wallet', desc: 'Secure PKR deposits and Vault Points (VP). Powered by Stripe to ensure your tournament prize pools are held safely in escrow.', color: '#F59E0B',
+              svg: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="2"><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20M16 15h.01M12 15h.01M8 15h.01" /></svg>
+            },
+            {
+              title: 'Ping-Verified Cafes', desc: 'Play in trusted LAN centers. Verified cafes get golden shield badges, guaranteeing a lag-free and authentic competitive environment.', color: '#EF4444',
+              svg: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#EF4444" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
+            },
+            {
+              title: '.edu Verification', desc: 'No smurfs. Automated email verification grants Verified Student status, ensuring you are playing against real students.', color: '#0EA5E9',
+              svg: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#0EA5E9" strokeWidth="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14" /><path d="M22 4L12 14.01l-3-3" /></svg>
+            },
+            {
+              title: 'Dispute Resolution', desc: 'Upload evidence, file disputes, and get fair verdicts from tournament organizers and admins. Transparent, fair, and fast.', color: '#8B5CF6',
+              svg: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" strokeWidth="2"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" /></svg>
+            },
           ].map((f, i) => (
             <div key={i} style={styles.featureCard}
               onMouseEnter={e => { e.currentTarget.style.borderColor = f.color + '66'; e.currentTarget.style.boxShadow = `0 8px 30px ${f.color}15` }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(108,99,255,0.15)'; e.currentTarget.style.boxShadow = 'none' }}
             >
-              <div style={{width:'52px',height:'52px',borderRadius:'14px',backgroundColor:f.color+'15',border:`1px solid ${f.color}33`,display:'flex',alignItems:'center',justifyContent:'center',marginBottom:'18px'}}>{f.svg}</div>
+              <div style={{ width: '52px', height: '52px', borderRadius: '14px', backgroundColor: f.color + '15', border: `1px solid ${f.color}33`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '18px' }}>{f.svg}</div>
               <h3 style={styles.featureTitle}>{f.title}</h3>
               <p style={styles.featureDesc}>{f.desc}</p>
             </div>
@@ -499,7 +515,7 @@ const styles = {
 
   // Why
   whySection: { padding: '80px 60px', backgroundColor: '#0d0d1a' },
-  featureGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '24px', marginTop: '40px' },
+  featureGrid: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginTop: '40px' },
   featureCard: { backgroundColor: '#0f0f1e', borderRadius: '16px', border: '1px solid rgba(108,99,255,0.15)', padding: '32px 28px', transition: 'all 0.3s ease', cursor: 'default' },
   featureTitle: { fontSize: '18px', fontWeight: '700', color: '#fff', marginBottom: '10px', fontFamily: 'Rajdhani, sans-serif', letterSpacing: '0.5px' },
   featureDesc: { fontSize: '14px', color: '#8b8ba7', lineHeight: '1.7' },

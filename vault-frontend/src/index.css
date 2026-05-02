@@ -28,3 +28,60 @@ body {
 input, select, textarea {
   font-family: 'Exo 2', sans-serif;
 }
+
+/* --- Responsive Utilities --- */
+
+.container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+@media (max-width: 1024px) {
+  .tablet-stack {
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .mobile-stack {
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+  }
+
+  .mobile-hide {
+    display: none !important;
+  }
+
+  .mobile-scroll {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Structural Overrides */
+  section {
+    padding: 40px 20px !important;
+  }
+
+  /* Navbar Mobile Overrides */
+  .navbar {
+    padding: 0 20px !important;
+  }
+
+  .mobile-toggle {
+    display: block !important;
+  }
+
+  .nav-links-desktop {
+    display: none !important;
+  }
+
+  .nav-links-mobile {
+    display: flex !important;
+  }
+}
+

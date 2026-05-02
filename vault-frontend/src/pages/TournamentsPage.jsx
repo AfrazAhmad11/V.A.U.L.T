@@ -104,12 +104,12 @@ function TournamentsPage() {
   }
 
   return (
-    <div style={styles.page}>
-      <div style={styles.header}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div style={styles.page} className="container">
+      <div style={styles.header} className="mobile-stack">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', flexWrap: 'wrap', gap: '16px' }}>
           <div>
             <p style={styles.eyebrow}>● ACTIVE TOURNAMENTS</p>
-            <h1 style={styles.title}>Find Your Arena</h1>
+            <h1 style={{...styles.title, fontSize: 'clamp(32px, 8vw, 48px)'}}>Find Your Arena</h1>
             <p style={styles.sub}>Browse and join tournaments happening across Pakistan</p>
           </div>
           {(user?.role === 'Organizer' || user?.role === 'Admin') && (
@@ -124,15 +124,15 @@ function TournamentsPage() {
       </div>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', borderBottom: '1px solid rgba(108,99,255,0.1)', paddingBottom: '16px' }}>
+      <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', borderBottom: '1px solid rgba(108,99,255,0.1)', paddingBottom: '16px', overflowX: 'auto' }} className="mobile-scroll">
         <button 
           onClick={() => setActiveTab('Open')} 
-          style={{ ...styles.filterBtn, backgroundColor: activeTab === 'Open' ? '#6C63FF' : 'transparent', color: activeTab === 'Open' ? '#fff' : '#8B8BA7', border: 'none', fontSize: '16px', padding: '10px 20px' }}>
+          style={{ ...styles.filterBtn, backgroundColor: activeTab === 'Open' ? '#6C63FF' : 'transparent', color: activeTab === 'Open' ? '#fff' : '#8B8BA7', border: 'none', fontSize: '16px', padding: '10px 20px', whiteSpace: 'nowrap' }}>
           🌐 Global Open
         </button>
         <button 
           onClick={() => setActiveTab('University')} 
-          style={{ ...styles.filterBtn, backgroundColor: activeTab === 'University' ? '#6C63FF' : 'transparent', color: activeTab === 'University' ? '#fff' : '#8B8BA7', border: 'none', fontSize: '16px', padding: '10px 20px' }}>
+          style={{ ...styles.filterBtn, backgroundColor: activeTab === 'University' ? '#6C63FF' : 'transparent', color: activeTab === 'University' ? '#fff' : '#8B8BA7', border: 'none', fontSize: '16px', padding: '10px 20px', whiteSpace: 'nowrap' }}>
           🎓 University Wars
         </button>
       </div>
@@ -143,7 +143,7 @@ function TournamentsPage() {
       )}
 
       {/* Filters */}
-      <div style={styles.filters}>
+      <div style={styles.filters} className="mobile-stack">
         <div style={styles.filterGroup}>
           {games.map(g => (
             <button key={g} onClick={() => setActiveGame(g)} style={{
@@ -154,10 +154,11 @@ function TournamentsPage() {
             }}>{g}</button>
           ))}
         </div>
-        <select value={activeCity} onChange={e => setActiveCity(e.target.value)} style={styles.select}>
+        <select value={activeCity} onChange={e => setActiveCity(e.target.value)} style={{...styles.select, width: {xs: '100%', sm: 'auto'}}}>
           {cities.map(c => <option key={c} value={c}>{c}</option>)}
         </select>
       </div>
+
 
       {/* Loading */}
       {loading ? (

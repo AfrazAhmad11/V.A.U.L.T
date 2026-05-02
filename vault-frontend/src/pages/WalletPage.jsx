@@ -91,10 +91,10 @@ function WalletPage() {
   }
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#060610', pt: 12, pb: 8, px: { xs: 2, md: 8 } }}>
+    <Box sx={{ minHeight: '100vh', bgcolor: '#060610', pt: 12, pb: 8, px: { xs: 2, md: 8 } }} className="container">
       <Box sx={{ maxWidth: 1000, mx: 'auto' }}>
         <Typography sx={{ color: '#FFD700', fontSize: 12, fontWeight: 700, letterSpacing: 2, mb: 1 }}>● DUAL ECONOMY</Typography>
-        <Typography variant="h3" sx={{ color: '#fff', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, mb: 4 }}>
+        <Typography variant="h3" sx={{ color: '#fff', fontFamily: 'Rajdhani, sans-serif', fontWeight: { xs: '32px', md: '48px' }, mb: 4 }}>
           V.A.U.L.T. Wallet
         </Typography>
 
@@ -106,13 +106,13 @@ function WalletPage() {
 
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 4, mb: 6 }}>
           {/* PKR Card */}
-          <Card sx={{ bgcolor: '#0F0F1E', border: '1px solid rgba(34, 197, 94, 0.2)', borderRadius: 4, p: 4, boxShadow: '0 0 40px rgba(34, 197, 94, 0.05)' }}>
+          <Card sx={{ bgcolor: '#0F0F1E', border: '1px solid rgba(34, 197, 94, 0.2)', borderRadius: 4, p: { xs: 3, md: 4 }, boxShadow: '0 0 40px rgba(34, 197, 94, 0.05)' }}>
             <Typography sx={{ color: '#8B8BA7', fontSize: 14, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1, mb: 1 }}>Fiat Balance</Typography>
-            <Typography sx={{ color: '#22C55E', fontSize: 48, fontWeight: 700, fontFamily: 'Rajdhani, sans-serif', mb: 4 }}>
+            <Typography sx={{ color: '#22C55E', fontSize: { xs: 36, md: 48 }, fontWeight: 700, fontFamily: 'Rajdhani, sans-serif', mb: 4 }}>
               PKR {balance.pkr.toLocaleString()}
             </Typography>
             
-            <Box sx={{ display: 'flex', gap: 2 }}>
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
               <TextField 
                 variant="outlined" 
                 placeholder="Amount to deposit" 
@@ -121,29 +121,29 @@ function WalletPage() {
                 onChange={e => setDepositAmt(e.target.value)}
                 sx={{ flex: 1, input: { color: '#fff' }, '& .MuiOutlinedInput-root': { '& fieldset': { borderColor: 'rgba(34, 197, 94, 0.3)' }, '&:hover fieldset': { borderColor: '#22C55E' }, '&.Mui-focused fieldset': { borderColor: '#22C55E' } } }}
               />
-              <Button onClick={handleDeposit} sx={{ bgcolor: '#22C55E', color: '#fff', '&:hover': { bgcolor: '#16A34A' }, px: 4, fontWeight: 700 }}>
+              <Button onClick={handleDeposit} sx={{ bgcolor: '#22C55E', color: '#fff', '&:hover': { bgcolor: '#16A34A' }, px: 4, fontWeight: 700, py: { xs: 1.5, sm: 0 } }}>
                 Deposit
               </Button>
             </Box>
           </Card>
 
           {/* VP Card */}
-          <Card sx={{ bgcolor: '#0F0F1E', border: '1px solid rgba(108, 99, 255, 0.2)', borderRadius: 4, p: 4, boxShadow: '0 0 40px rgba(108, 99, 255, 0.05)' }}>
+          <Card sx={{ bgcolor: '#0F0F1E', border: '1px solid rgba(108, 99, 255, 0.2)', borderRadius: 4, p: { xs: 3, md: 4 }, boxShadow: '0 0 40px rgba(108, 99, 255, 0.05)' }}>
             <Typography sx={{ color: '#8B8BA7', fontSize: 14, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1, mb: 1 }}>Premium Currency</Typography>
-            <Typography sx={{ color: '#6C63FF', fontSize: 48, fontWeight: 700, fontFamily: 'Rajdhani, sans-serif', mb: 4, display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Typography sx={{ color: '#6C63FF', fontSize: { xs: 36, md: 48 }, fontWeight: 700, fontFamily: 'Rajdhani, sans-serif', mb: 4, display: 'flex', alignItems: 'center', gap: 1 }}>
               <img src="/vault-points.png" alt="VP" style={{width:'40px', height:'40px', display:'inline-block'}} /> {balance.vp.toLocaleString()} VP
             </Typography>
             
-            <Box sx={{ display: 'flex', gap: 2 }}>
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
               <TextField 
                 variant="outlined" 
-                placeholder="PKR to convert (5 PKR = 1 VP)" 
+                placeholder="PKR to convert" 
                 type="number"
                 value={convertAmt}
                 onChange={e => setConvertAmt(e.target.value)}
                 sx={{ flex: 1, input: { color: '#fff' }, '& .MuiOutlinedInput-root': { '& fieldset': { borderColor: 'rgba(108, 99, 255, 0.3)' }, '&:hover fieldset': { borderColor: '#6C63FF' }, '&.Mui-focused fieldset': { borderColor: '#6C63FF' } } }}
               />
-              <Button onClick={handleConvert} sx={{ bgcolor: '#6C63FF', color: '#fff', '&:hover': { bgcolor: '#5B54E5' }, px: 4, fontWeight: 700 }}>
+              <Button onClick={handleConvert} sx={{ bgcolor: '#6C63FF', color: '#fff', '&:hover': { bgcolor: '#5B54E5' }, px: 4, fontWeight: 700, py: { xs: 1.5, sm: 0 } }}>
                 Convert
               </Button>
             </Box>
@@ -154,8 +154,8 @@ function WalletPage() {
         <Typography variant="h5" sx={{ color: '#fff', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, mb: 3 }}>
           Recent Transactions
         </Typography>
-        <TableContainer component={Paper} sx={{ bgcolor: '#0F0F1E', border: '1px solid rgba(108,99,255,0.1)' }}>
-          <Table>
+        <TableContainer component={Paper} sx={{ bgcolor: '#0F0F1E', border: '1px solid rgba(108,99,255,0.1)', overflowX: 'auto' }}>
+          <Table sx={{ minWidth: { xs: 600, md: 'auto' } }}>
             <TableHead>
               <TableRow>
                 <TableCell sx={{ color: '#8B8BA7', borderBottom: '1px solid rgba(108,99,255,0.1)' }}>Date</TableCell>
@@ -185,6 +185,7 @@ function WalletPage() {
         </TableContainer>
       </Box>
     </Box>
+
   )
 }
 

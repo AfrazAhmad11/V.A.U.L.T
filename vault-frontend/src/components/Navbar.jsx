@@ -32,6 +32,7 @@ function Navbar() {
     navigate('/')
   }
 
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const isOrganizer = user?.role === 'Organizer' || user?.role === 'Admin'
 
   const navLinks = [
@@ -50,35 +51,75 @@ function Navbar() {
   }
 
   return (
-    <nav style={{
-      ...styles.nav,
-      backgroundColor: scrolled ? 'rgba(6,6,16,0.97)' : 'transparent',
-      backdropFilter: scrolled ? 'blur(20px)' : 'none',
-      borderBottom: scrolled ? '1px solid rgba(108,99,255,0.2)' : '1px solid transparent',
-      boxShadow: scrolled ? '0 4px 30px rgba(0,0,0,0.5)' : 'none',
-    }}>
+    <nav 
+      className="navbar"
+      style={{
+        ...styles.nav,
+        backgroundColor: scrolled || isMobileMenuOpen ? 'rgba(6,6,16,0.98)' : 'transparent',
+        backdropFilter: scrolled || isMobileMenuOpen ? 'blur(20px)' : 'none',
+        borderBottom: scrolled || isMobileMenuOpen ? '1px solid rgba(108,99,255,0.2)' : '1px solid transparent',
+        boxShadow: scrolled || isMobileMenuOpen ? '0 4px 30px rgba(0,0,0,0.5)' : 'none',
+      }}
+    >
       {/* Logo */}
       <Link to="/" style={styles.logo}>
         <span style={styles.logoIcon}>⬡</span>
         <span>V.A.U.L.T</span>
       </Link>
 
+      {/* Mobile Toggle */}
+      <button 
+        className="mobile-toggle"
+        style={styles.mobileToggle}
+        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          {isMobileMenuOpen ? (
+            <path d="M18 6L6 18M6 6l12 12" />
+          ) : (
+            <path d="M3 12h18M3 6h18M3 18h18" />
+          )}
+        </svg>
+      </button>
+
       {/* Nav Links */}
-      <div style={styles.links}>
+      <div 
+        className={isMobileMenuOpen ? "nav-links-mobile" : "nav-links-desktop"}
+        style={isMobileMenuOpen ? styles.linksMobile : styles.links}
+      >
         {navLinks.map(({ path, label, icon }) => (
-          <Link key={path} to={path} style={{
-            ...styles.link,
-            color: isActive(path) ? '#6c63ff' : '#8b8ba7',
-            borderBottom: isActive(path) ? '2px solid #6c63ff' : '2px solid transparent',
-          }}>
+          <Link 
+            key={path} 
+            to={path} 
+            onClick={() => setIsMobileMenuOpen(false)}
+            style={{
+              ...styles.link,
+              color: isActive(path) ? '#6c63ff' : '#8b8ba7',
+              borderBottom: !isMobileMenuOpen && isActive(path) ? '2px solid #6c63ff' : '2px solid transparent',
+            }}
+          >
             <span style={{ display: 'inline-flex', verticalAlign: 'middle', marginRight: '5px' }}>{icon}</span>
             {label}
           </Link>
         ))}
+        
+        {/* Mobile Auth Links */}
+        {isMobileMenuOpen && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '20px', width: '100%' }}>
+            {user ? (
+              <button onClick={handleLogout} style={styles.logoutBtn}>Logout</button>
+            ) : (
+              <>
+                <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} style={styles.loginBtn}>Sign In</Link>
+                <Link to="/register" onClick={() => setIsMobileMenuOpen(false)} style={styles.registerBtn}>Join Now</Link>
+              </>
+            )}
+          </div>
+        )}
       </div>
 
-      {/* Auth Section */}
-      <div style={styles.authBtns}>
+      {/* Auth Section Desktop */}
+      <div className="mobile-hide" style={styles.authBtns}>
         {user ? (
           <>
             <span style={styles.userInfo}>
@@ -108,6 +149,17 @@ const styles = {
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
     padding: '0 48px', height: '64px',
     transition: 'all 0.3s ease',
+  },
+  mobileToggle: {
+    display: 'none',
+    background: 'none', border: 'none', color: '#fff', cursor: 'pointer',
+    padding: '5px',
+  },
+  linksMobile: {
+    position: 'fixed', top: '64px', left: 0, right: 0, bottom: 0,
+    backgroundColor: 'rgba(6,6,16,0.98)', padding: '40px 20px',
+    display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'flex-start',
+    zIndex: 999, overflowY: 'auto',
   },
   logo: {
     display: 'flex', alignItems: 'center', gap: '10px',
