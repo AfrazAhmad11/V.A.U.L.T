@@ -310,7 +310,7 @@ V.A.U.L.T/
 | Member | Role | Contributions |
 |--------|------|--------------|
 | Afraz Ahmad | Full Stack Developer | Frontend Design, Backend API, Database Schema, Authentication, Bracket Algorithm, Dispute System, Documentation |
-| Aoun Raza | Full Stack Developer | Frontend UI/UX, React Pages, Testing, Project Report |
+| Aoun Raza | Full Stack Developer | Frontend UI/UX, React Pages, Testing,Documentation, Project Report |
 
 ---
 
