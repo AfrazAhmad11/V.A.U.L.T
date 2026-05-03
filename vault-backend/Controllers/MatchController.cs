@@ -11,6 +11,10 @@ using VaultBackend.Hubs;
 
 namespace VaultBackend.Controllers
 {
+    /// <summary>
+    /// Handles the lifecycle and results of individual matches.
+    /// Manages score reporting, dispute resolution, and real-time status updates.
+    /// </summary>
     [ApiController]
     [Route("api/matches")]
     [Authorize]

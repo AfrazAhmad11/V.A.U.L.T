@@ -7,6 +7,10 @@ using VaultBackend.Services;
 
 namespace VaultBackend.Controllers
 {
+    /// <summary>
+    /// Handles user authentication and profile management.
+    /// Supports registration, login, and session token generation.
+    /// </summary>
     [ApiController]
     [Route("api/auth")]
     public class AuthController : ControllerBase

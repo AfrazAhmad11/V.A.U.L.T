@@ -17,12 +17,22 @@ const roleConfig = {
   Player: { color: '#6C63FF', label: 'Player', icon: '🎮' },
 }
 
+/**
+ * ProfilePage Component
+ * 
+ * A comprehensive dashboard for the user to manage their identity and view stats.
+ * Features:
+ * 1. Personal statistics (Rank, Earnings, Wins).
+ * 2. Organized vs. Participated tournament history.
+ * 3. Real-time PKR balance display from the Wallet integration.
+ * 4. Institution and Campus Champion status tracking.
+ */
 function ProfilePage() {
-  const [form, setForm] = useState({ username: '', email: '', gameTag: '', rank: 'Gold', city: '', bio: '', institution: '', role: '' })
-  const [stats, setStats] = useState({ tournamentsPlayed: 0, walletBalance: 0, vaultPoints: 0, isInstitutionVerified: false, campusChampionCount: 0 })
-  const [saved, setSaved] = useState(false)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+    const [form, setForm] = useState({ username: '', email: '', gameTag: '', rank: 'Gold', city: '', bio: '', institution: '', role: '' })
+    const [stats, setStats] = useState({ tournamentsPlayed: 0, walletBalance: 0, vaultPoints: 0, isInstitutionVerified: false, campusChampionCount: 0 })
+    const [saved, setSaved] = useState(false)
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState('')
   const navigate = useNavigate()
 
   useEffect(() => {

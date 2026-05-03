@@ -9,6 +9,10 @@ using Stripe;
 
 namespace VaultBackend.Controllers
 {
+    /// <summary>
+    /// Manages user wallet operations, including PKR deposits via Stripe
+    /// and Vault Points tracking.
+    /// </summary>
     [ApiController]
     [Route("api/wallet")]
     [Authorize]

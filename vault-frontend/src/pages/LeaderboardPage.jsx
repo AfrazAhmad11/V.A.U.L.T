@@ -8,6 +8,15 @@ const rankColors = {
   Platinum:'#0891b2', Diamond:'#7c3aed', Ascendant:'#059669', Immortal:'#dc2626', Radiant:'#f59e0b',
 }
 
+/**
+ * LeaderboardPage Component
+ * 
+ * Renders a global ranking of users based on their performance and credentials.
+ * Features:
+ * 1. Ranking by PKR Balance (Wealth).
+ * 2. Ranking by Campus Champion Count (Competitive Success).
+ * 3. Verified Institution badges to differentiate student tiers.
+ */
 function LeaderboardPage() {
   const [players, setPlayers] = useState([])
   const [campuses, setCampuses] = useState([])
