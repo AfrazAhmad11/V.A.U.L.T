@@ -8,6 +8,10 @@ using VaultBackend.Services;
 
 namespace VaultBackend.Controllers
 {
+    /// <summary>
+    /// Handles the generation, retrieval, and status updates of tournament brackets.
+    /// Orchestrates real-time notifications to users via SignalR Hubs.
+    /// </summary>
     [ApiController]
     [Route("api/brackets")]
     public class BracketController : ControllerBase

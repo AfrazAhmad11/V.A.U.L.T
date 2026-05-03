@@ -24,6 +24,16 @@ const tagColors = {
 const games = ['All', 'FPS', 'Fighting', 'Sports', 'Battle Royale']
 const cities = ['All Cities', 'Faisalabad', 'Lahore', 'Islamabad', 'Karachi']
 
+/**
+ * TournamentsPage Component
+ * 
+ * Provides a discovery hub for all esports competitions.
+ * Features:
+ * 1. Filter by Game (Valorant, CS2, etc.) and Location (City).
+ * 2. Category tabs (Global Open vs University Exclusive).
+ * 3. Real-time slot tracking and registration progress.
+ * 4. Administrative controls for Organizers (Create/Edit/Delete).
+ */
 function TournamentsPage() {
   const [tournaments, setTournaments] = useState([])
   const [activeGame, setActiveGame] = useState('All')

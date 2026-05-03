@@ -8,6 +8,10 @@ using VaultBackend.Models;
 
 namespace VaultBackend.Controllers
 {
+    /// <summary>
+    /// Manages tournament lifecycle, registrations, and participant discovery.
+    /// Supports both Global Open and University-exclusive formats.
+    /// </summary>
     [ApiController]
     [Route("api/tournaments")]
     public class TournamentsController : ControllerBase
@@ -254,7 +258,11 @@ namespace VaultBackend.Controllers
             return Ok(new { message = "Tournament deleted. All entry fees refunded." });
         }
 
-        // GET: All players in a tournament (Aggressive Discovery)
+        /// <summary>
+        /// Retrieves a unified list of players for a tournament.
+        /// Uses aggressive discovery: pulls from both official registrations 
+        /// and active bracket matches to ensure data consistency.
+        /// </summary>
         [HttpGet("{id}/players")]
         public async Task<IActionResult> GetPlayers(int id)
         {

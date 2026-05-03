@@ -5,23 +5,34 @@ import api from '../api/config'
 import confetti from 'canvas-confetti'
 import * as signalR from '@microsoft/signalr'
 
+/**
+ * BracketPage Component
+ * 
+ * This is the primary view for tournament competition. It handles:
+ * 1. Real-time match updates via SignalR.
+ * 2. Dynamic bracket rendering (Single Elimination).
+ * 3. Self-healing participant discovery (merging registration and match data).
+ * 4. Interactive match reporting and dispute management.
+ */
 function BracketPage() {
     const { id } = useParams()
-    const [bracket, setBracket] = useState(null)
-    const [tournament, setTournament] = useState(null)
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState(null)
-    const [reportModal, setReportModal] = useState(null)
-    const [disputeModal, setDisputeModal] = useState(null)
+    
+    // Core State Management
+    const [bracket, setBracket] = useState(null)          // Full bracket tree and matches
+    const [tournament, setTournament] = useState(null)    // Metadata about the tournament
+    const [loading, setLoading] = useState(true)          // Initial loading state
+    const [error, setError] = useState(null)              // Global error state for 404s/500s
+    const [reportModal, setReportModal] = useState(null)  // Match being currently reported
+    const [disputeModal, setDisputeModal] = useState(null)// Match being currently disputed
     const [disputeForm, setDisputeForm] = useState({ reason: '', evidenceUrl: '' })
     const [scores, setScores] = useState({ player1Score: 0, player2Score: 0 })
     const [submitting, setSubmitting] = useState(false)
     const [successMsg, setSuccessMsg] = useState('')
     const [generating, setGenerating] = useState(false)
     const [champion, setChampion] = useState(null)
-    const [activeTab, setActiveTab] = useState('bracket')
-    const [players, setPlayers] = useState([])
-    const [timeLeft, setTimeLeft] = useState('')
+    const [activeTab, setActiveTab] = useState('bracket') // View toggle (Bracket vs Players)
+    const [players, setPlayers] = useState([])            // Unified list of participants
+    const [timeLeft, setTimeLeft] = useState('')          // Countdown to tournament start
 
     const user = JSON.parse(localStorage.getItem('user') || '{}')
 
