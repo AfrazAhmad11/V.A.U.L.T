@@ -24,6 +24,8 @@ namespace VaultBackend.Models
         public string? TargetInstitution { get; set; }
         public int OrganizerId { get; set; }
         public User Organizer { get; set; } = null!;
+        [System.ComponentModel.DataAnnotations.Schema.NotMapped]
+        public DateTime StartsAt { get; set; } = DateTime.UtcNow.AddDays(7); 
         public ICollection<TournamentRegistration> Registrations { get; set; } = new List<TournamentRegistration>();
     }
 }

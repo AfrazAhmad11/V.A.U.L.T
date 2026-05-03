@@ -9,6 +9,17 @@ namespace VaultBackend.DTOs
         public int TotalRounds { get; set; }
         public DateTime CreatedAt { get; set; }
         public List<MatchResponseDto> Matches { get; set; } = new();
+        public List<TournamentPlayerDto> Players { get; set; } = new();
+    }
+
+    public class TournamentPlayerDto
+    {
+        public int UserId { get; set; }
+        public string Username { get; set; } = string.Empty;
+        public string GameTag { get; set; } = string.Empty;
+        public string Rank { get; set; } = string.Empty;
+        public string? Institution { get; set; }
+        public string City { get; set; } = string.Empty;
     }
 
     // ─── Match DTOs ───────────────────────────────────

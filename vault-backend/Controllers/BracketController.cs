@@ -69,19 +69,36 @@ namespace VaultBackend.Controllers
             if (bracket == null)
                 return NotFound(new { message = "Bracket not found. Tournament may not have started yet." });
 
+            var players = await _db.TournamentRegistrations
+                .Where(r => r.TournamentId == tournamentId)
+                .Include(r => r.User)
+                .Select(r => new TournamentPlayerDto
+                {
+                    UserId = r.User.UserId,
+                    Username = r.User.Username,
+                    GameTag = r.User.GameTag,
+                    Rank = r.User.Rank.ToString(),
+                    Institution = r.User.Institution,
+                    City = r.User.City
+                }).ToListAsync();
+
             var response = new BracketResponseDto
             {
                 BracketId = bracket.BracketId,
                 TournamentId = bracket.TournamentId,
                 TotalRounds = bracket.TotalRounds,
+                Players = players,
                 Matches = bracket.Matches.OrderBy(m => m.Round).ThenBy(m => m.MatchNumber)
                     .Select(m => new MatchResponseDto
                     {
                         MatchId = m.MatchId,
                         Round = m.Round,
                         MatchNumber = m.MatchNumber,
+                        Player1Id = m.Player1Id,
                         Player1Name = m.Player1?.Username ?? "TBD",
+                        Player2Id = m.Player2Id,
                         Player2Name = m.Player2?.Username ?? "TBD",
+                        WinnerId = m.WinnerId,
                         WinnerName = m.Winner?.Username,
                         Player1Score = m.Player1Score,
                         Player2Score = m.Player2Score,

@@ -13,6 +13,7 @@ namespace VaultBackend.DTOs
         public string AccentColor { get; set; } = "#6C63FF";
         public bool IsVerifiedCafe { get; set; }
         public string? TargetInstitution { get; set; }
+        public DateTime StartsAt { get; set; }
     }
 
     public class TournamentResponseDto
@@ -34,5 +35,6 @@ namespace VaultBackend.DTOs
         public DateTime CreatedAt { get; set; }
         public bool IsVerifiedCafe { get; set; }
         public string? TargetInstitution { get; set; }
+        public DateTime StartsAt { get; set; }
     }
 }

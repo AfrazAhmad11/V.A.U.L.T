@@ -8,6 +8,7 @@ import * as signalR from '@microsoft/signalr'
 function BracketPage() {
     const { id } = useParams()
     const [bracket, setBracket] = useState(null)
+    const [tournament, setTournament] = useState(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
     const [reportModal, setReportModal] = useState(null)
@@ -18,11 +19,56 @@ function BracketPage() {
     const [successMsg, setSuccessMsg] = useState('')
     const [generating, setGenerating] = useState(false)
     const [champion, setChampion] = useState(null)
+    const [activeTab, setActiveTab] = useState('bracket')
+    const [players, setPlayers] = useState([])
+    const [timeLeft, setTimeLeft] = useState('')
 
     const user = JSON.parse(localStorage.getItem('user') || '{}')
 
     useEffect(() => {
-        fetchBracket()
+        const fetchInitialData = async () => {
+            try {
+                setLoading(true)
+                setError(null)
+                
+                // Fetch Tournament Details
+                try {
+                    const tRes = await api.get(`/tournaments/${id}`)
+                    setTournament(tRes.data)
+                } catch (tErr) {
+                    console.error('Tournament fetch failed', tErr)
+                    setError('Tournament not found or server error.')
+                }
+
+                // Fetch Players (Independent)
+                try {
+                    const pRes = await api.get(`/tournaments/${id}/players`)
+                    setPlayers(pRes.data)
+                } catch (pErr) {
+                    console.error('Players fetch failed', pErr)
+                }
+
+                // Fetch Bracket (Independent)
+                try {
+                    const bRes = await api.get(`/brackets/${id}`)
+                    setBracket(bRes.data)
+                    
+                    // AUTO-SYNC: If we have a bracket but players list is empty, 
+                    // pull players from the bracket data immediately
+                    if (bRes.data.players && bRes.data.players.length > 0) {
+                        setPlayers(bRes.data.players)
+                    }
+                } catch (bErr) {
+                    console.log('Bracket not yet generated or tournament not started.')
+                }
+            } catch (err) {
+                setError('A critical error occurred while loading.')
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        fetchInitialData()
 
         const connection = new signalR.HubConnectionBuilder()
             .withUrl('http://localhost:5223/tournamentHub')
@@ -49,17 +95,41 @@ function BracketPage() {
         }
     }, [id])
 
+    // Countdown Timer Effect
+    useEffect(() => {
+        if (!tournament?.startsAt) return
+        
+        const timer = setInterval(() => {
+            const now = new Date().getTime()
+            const start = new Date(tournament.startsAt).getTime()
+            const diff = start - now
+
+            if (diff <= 0) {
+                setTimeLeft('STARTING SOON')
+                clearInterval(timer)
+                return
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+            const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+            const secs = Math.floor((diff % (1000 * 60)) / 1000)
+
+            setTimeLeft(`${days}d ${hours}h ${mins}m ${secs}s`)
+        }, 1000)
+
+        return () => clearInterval(timer)
+    }, [tournament])
+
     const fetchBracket = async () => {
         try {
-            setLoading(true)
             const res = await api.get(`/brackets/${id}`)
             setBracket(res.data)
         } catch (err) {
-            setError('Bracket not found. Tournament may not have started yet.')
-        } finally {
-            setLoading(false)
+            console.log('Bracket fetch failed or not generated')
         }
     }
+
 
     const handleReportScore = async () => {
         if (scores.player1Score === scores.player2Score) {
@@ -172,14 +242,24 @@ function BracketPage() {
 
     if (error) return (
         <div style={styles.centered}>
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#6C63FF" strokeWidth="1.5" strokeLinecap="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-            <p style={{ color: '#8B8BA7', fontSize: '18px', marginTop: '12px' }}>{error}</p>
-            {isOrganizer && (
-                <button onClick={handleGenerateBracket} disabled={generating} style={{...styles.genBtn, marginTop: '20px'}}>
-                    {generating ? 'Generating...' : '⚡ Generate Bracket Now'}
+            <div style={{...styles.waitingIcon, fontSize: '48px'}}>🔌</div>
+            <h2 style={{...styles.waitingTitle, fontSize: '24px', marginTop: '12px'}}>Something went wrong</h2>
+            <p style={{ ...styles.waitingText, fontSize: '14px', marginBottom: '32px' }}>{error}</p>
+            
+            <div style={{display:'flex', gap:'12px', flexWrap:'wrap', justifyContent:'center'}}>
+                <button onClick={() => window.location.reload()} style={{...styles.genBtn, background: 'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', boxShadow:'none'}}>
+                    🔄 Try Again
                 </button>
-            )}
-            <Link to="/tournaments" style={styles.backBtn}>← Back to Tournaments</Link>
+                {isOrganizer && (
+                    <button onClick={handleGenerateBracket} disabled={generating} style={styles.genBtn}>
+                        {generating ? 'Generating...' : '⚡ Generate Bracket Now'}
+                    </button>
+                )}
+            </div>
+            
+            <Link to="/tournaments" style={{...styles.backLink, marginTop:'32px', display:'block'}}>
+                ← Return to Tournament Discovery
+            </Link>
         </div>
     )
 
@@ -192,151 +272,136 @@ function BracketPage() {
             <div style={styles.header} className="mobile-stack">
                 <Link to="/tournaments" style={styles.backLink}>← Back to Tournaments</Link>
                 <div>
-                    <p style={styles.eyebrow}>● LIVE BRACKET</p>
-                    <h1 style={{...styles.title, fontSize: 'clamp(28px, 8vw, 42px)'}}>Tournament Bracket</h1>
-                    <p style={styles.sub}>
-                        {bracket.totalRounds} Rounds · {bracket.matches?.length} Matches Total
-                    </p>
+                    <p style={styles.eyebrow}>● {activeTab === 'bracket' ? 'LIVE BRACKET' : 'REGISTERED PLAYERS'}</p>
+                    <h1 style={{...styles.title, fontSize: 'clamp(28px, 8vw, 42px)'}}>{tournament?.title || 'Tournament Details'}</h1>
+                    <div style={{display:'flex', gap:'12px', alignItems:'center'}}>
+                        <p style={styles.sub}>
+                            {activeTab === 'bracket' ? (bracket ? `${bracket.totalRounds} Rounds · ${bracket.matches?.length} Matches` : 'Awaiting Generation') : `${players.length} Players Competing`}
+                        </p>
+                        {timeLeft && !bracket && (
+                            <span style={styles.timerBadge}>⏳ {timeLeft}</span>
+                        )}
+                    </div>
                 </div>
-                <div style={styles.legend}>
-                    {[['Pending', '#8B8BA7'], ['Completed', '#22C55E'], ['Disputed', '#EF4444']].map(([label, color]) => (
-                        <div key={label} style={styles.legendItem}>
-                            <div style={{ ...styles.legendDot, backgroundColor: color }} />
-                            <span style={{ color: '#8B8BA7', fontSize: '12px' }}>{label}</span>
-                        </div>
-                    ))}
+                
+                {/* Tab Toggles */}
+                <div style={styles.tabGroup}>
+                    <button 
+                        style={{...styles.tab, borderBottom: activeTab === 'bracket' ? '2px solid #6C63FF' : 'none', color: activeTab === 'bracket' ? '#fff' : '#8B8BA7'}} 
+                        onClick={() => setActiveTab('bracket')}
+                    >
+                        🏆 Bracket
+                    </button>
+                    <button 
+                        style={{...styles.tab, borderBottom: activeTab === 'players' ? '2px solid #6C63FF' : 'none', color: activeTab === 'players' ? '#fff' : '#8B8BA7'}} 
+                        onClick={() => setActiveTab('players')}
+                    >
+                        👥 Players ({players.length})
+                    </button>
                 </div>
             </div>
-
 
             {/* Success Message */}
             {successMsg && (
                 <div style={champion ? styles.championBanner : styles.successBanner}>{successMsg}</div>
             )}
 
-            {/* Champion Announcement */}
-            {champion && (
-                <div style={styles.championCard}>
-                    <img src={`https://api.dicebear.com/7.x/bottts/svg?seed=${champion}`} alt="champion" style={{width:'64px',height:'64px',borderRadius:'50%',border:'3px solid #FFD700',backgroundColor:'#FFD70022'}} />
-                    <div>
-                        <p style={{color:'#FFD700',fontSize:'12px',fontWeight:'700',letterSpacing:'2px',marginBottom:'4px'}}>🏆 TOURNAMENT CHAMPION</p>
-                        <h2 style={{fontFamily:'Rajdhani, sans-serif',fontSize:'28px',fontWeight:'700',color:'#fff',margin:0}}>{champion}</h2>
+            {activeTab === 'bracket' ? (
+                <>
+                    {bracket ? (
+                        <>
+                            {/* Champion Announcement */}
+                            {champion && (
+                                <div style={styles.championCard}>
+                                    <img src={`https://api.dicebear.com/7.x/bottts/svg?seed=${champion}`} alt="champion" style={{width:'64px',height:'64px',borderRadius:'50%',border:'3px solid #FFD700',backgroundColor:'#FFD70022'}} />
+                                    <div>
+                                        <p style={{color:'#FFD700',fontSize:'12px',fontWeight:'700',letterSpacing:'2px',marginBottom:'4px'}}>🏆 TOURNAMENT CHAMPION</p>
+                                        <h2 style={{fontFamily:'Rajdhani, sans-serif',fontSize:'28px',fontWeight:'700',color:'#fff',margin:0}}>{champion}</h2>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Bracket Tree */}
+                            <div style={styles.bracketContainer} className="mobile-scroll">
+                                {getRounds().map(([round, matches]) => (
+                                    <div key={round} style={styles.roundColumn}>
+                                        <div style={styles.roundTitle}>{getRoundName(round, bracket.totalRounds)}</div>
+                                        <div style={styles.matchesCol}>
+                                            {matches.map(match => (
+                                                <div key={match.matchId} style={{...styles.matchCard, borderColor: match.status === 'Disputed' ? '#EF444444' : match.status === 'Completed' ? '#22C55E44' : 'rgba(108,99,255,0.2)'}}>
+                                                    <div style={styles.matchHeader}>
+                                                        <span style={styles.matchNum}>Match {match.matchNumber}</span>
+                                                        <span style={{...styles.statusBadge, color: getStatusColor(match.status), backgroundColor: getStatusColor(match.status) + '22'}}>{match.status === 'Completed' ? '✓' : match.status === 'Disputed' ? '⚠' : '○'} {match.status}</span>
+                                                    </div>
+                                                    <div style={{...styles.playerRow, backgroundColor: match.winnerName === match.player1Name && match.winnerName ? 'rgba(34,197,94,0.1)' : 'transparent', borderLeft: match.winnerName === match.player1Name && match.winnerName ? '3px solid #22C55E' : '3px solid transparent'}}>
+                                                        <span style={{...styles.playerName, color: match.player1Name === 'TBD' ? '#8B8BA7' : '#fff', fontWeight: match.winnerName === match.player1Name ? '700' : '400'}}>{match.winnerName === match.player1Name && match.winnerName ? '🏆 ' : ''}{match.player1Name}</span>
+                                                        {match.player1Score !== null && match.player1Score !== undefined && <span style={styles.score}>{match.player1Score}</span>}
+                                                    </div>
+                                                    <div style={styles.vsDivider}><div style={styles.vsLine} /><span style={styles.vsText}>VS</span><div style={styles.vsLine} /></div>
+                                                    <div style={{...styles.playerRow, backgroundColor: match.winnerName === match.player2Name && match.winnerName ? 'rgba(34,197,94,0.1)' : 'transparent', borderLeft: match.winnerName === match.player2Name && match.winnerName ? '3px solid #22C55E' : '3px solid transparent'}}>
+                                                        <span style={{...styles.playerName, color: match.player2Name === 'TBD' ? '#8B8BA7' : '#fff', fontWeight: match.winnerName === match.player2Name ? '700' : '400'}}>{match.winnerName === match.player2Name && match.winnerName ? '🏆 ' : ''}{match.player2Name}</span>
+                                                        {match.player2Score !== null && match.player2Score !== undefined && <span style={styles.score}>{match.player2Score}</span>}
+                                                    </div>
+                                                    {(match.status === 'Pending' || match.status === 'InProgress') && match.player1Name !== 'TBD' && match.player2Name !== 'TBD' && (
+                                                        <div style={styles.actions}>
+                                                            <button style={styles.reportBtn} onClick={() => setReportModal({matchId: match.matchId, player1: match.player1Name, player2: match.player2Name, nextMatchId: match.nextMatchId})}>📊 Report Score</button>
+                                                            <button style={styles.disputeBtn} onClick={() => setDisputeModal({ matchId: match.matchId, player1: match.player1Name, player2: match.player2Name })}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Dispute</button>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </>
+                    ) : (
+                        /* Professional Waiting State */
+                        <div style={styles.waitingState}>
+                            <div style={styles.waitingIcon}>🛡️</div>
+                            <h2 style={styles.waitingTitle}>Tournament Scheduled</h2>
+                            <p style={styles.waitingText}>
+                                Brackets will be generated once the registration period ends and the tournament begins. 
+                                <br />Minimum of 8 participants required for official seeding.
+                            </p>
+                            <div style={styles.statsRow}>
+                                <div style={styles.statBox}>
+                                    <span style={styles.statVal}>{players.length}</span>
+                                    <span style={styles.statLabel}>Participants</span>
+                                </div>
+                                <div style={styles.statBox}>
+                                    <span style={styles.statVal}>{timeLeft || '--'}</span>
+                                    <span style={styles.statLabel}>Starts In</span>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </>
+            ) : (
+                /* Player List Tab */
+                <div style={styles.playerList}>
+                    <div style={styles.listHeader}>
+                        <div style={{...styles.col, flex: 2}}>Player</div>
+                        <div style={styles.col}>Game Tag</div>
+                        <div style={styles.col}>Rank</div>
+                        <div style={{...styles.col, flex: 2}}>Institution / City</div>
                     </div>
+                    {players.map(p => (
+                        <div key={p.userId} style={styles.listRow}>
+                            <div style={{...styles.col, flex: 2, display:'flex', alignItems:'center', gap:'12px'}}>
+                                <img src={`https://api.dicebear.com/7.x/bottts/svg?seed=${p.username}`} alt="avatar" style={styles.pAvatar} />
+                                <span style={styles.pName}>{p.username}</span>
+                            </div>
+                            <div style={styles.col}>{p.gameTag}</div>
+                            <div style={{...styles.col, color: '#6C63FF', fontWeight:'700'}}>{p.rank}</div>
+                            <div style={{...styles.col, flex: 2, color:'#8B8BA7', fontSize:'13px'}}>
+                                {p.institution ? `🎓 ${p.institution}` : `📍 ${p.city}`}
+                            </div>
+                        </div>
+                    ))}
+                    {players.length === 0 && <p style={{textAlign:'center', color:'#8B8BA7', padding:'40px'}}>No players registered yet.</p>}
                 </div>
             )}
-
-            {/* Bracket Tree */}
-            <div style={styles.bracketContainer} className="mobile-scroll">
-                {rounds.map(([round, matches]) => (
-                    <div key={round} style={styles.roundColumn}>
-
-                        {/* Round Title */}
-                        <div style={styles.roundTitle}>
-                            {getRoundName(round, bracket.totalRounds)}
-                        </div>
-
-                        {/* Matches */}
-                        <div style={styles.matchesCol}>
-                            {matches.map(match => (
-                                <div key={match.matchId} style={{
-                                    ...styles.matchCard,
-                                    borderColor: match.status === 'Disputed'
-                                        ? '#EF444444'
-                                        : match.status === 'Completed'
-                                            ? '#22C55E44'
-                                            : 'rgba(108,99,255,0.2)'
-                                }}>
-                                    {/* Status Badge */}
-                                    <div style={styles.matchHeader}>
-                                        <span style={styles.matchNum}>Match {match.matchNumber}</span>
-                                        <span style={{
-                                            ...styles.statusBadge,
-                                            color: getStatusColor(match.status),
-                                            backgroundColor: getStatusColor(match.status) + '22'
-                                        }}>
-                                            {match.status === 'Completed' ? '✓' : match.status === 'Disputed' ? '⚠' : '○'} {match.status}
-                                        </span>
-                                    </div>
-
-                                    {/* Player 1 */}
-                                    <div style={{
-                                        ...styles.playerRow,
-                                        backgroundColor: match.winnerName === match.player1Name && match.winnerName
-                                            ? 'rgba(34,197,94,0.1)' : 'transparent',
-                                        borderLeft: match.winnerName === match.player1Name && match.winnerName
-                                            ? '3px solid #22C55E' : '3px solid transparent'
-                                    }}>
-                                        <span style={{
-                                            ...styles.playerName,
-                                            color: match.player1Name === 'TBD' ? '#8B8BA7' : '#fff',
-                                            fontWeight: match.winnerName === match.player1Name ? '700' : '400'
-                                        }}>
-                                            {match.winnerName === match.player1Name && match.winnerName ? '🏆 ' : ''}
-                                            {match.player1Name}
-                                        </span>
-                                        {match.player1Score !== null && match.player1Score !== undefined && (
-                                            <span style={styles.score}>{match.player1Score}</span>
-                                        )}
-                                    </div>
-
-                                    {/* VS Divider */}
-                                    <div style={styles.vsDivider}>
-                                        <div style={styles.vsLine} />
-                                        <span style={styles.vsText}>VS</span>
-                                        <div style={styles.vsLine} />
-                                    </div>
-
-                                    {/* Player 2 */}
-                                    <div style={{
-                                        ...styles.playerRow,
-                                        backgroundColor: match.winnerName === match.player2Name && match.winnerName
-                                            ? 'rgba(34,197,94,0.1)' : 'transparent',
-                                        borderLeft: match.winnerName === match.player2Name && match.winnerName
-                                            ? '3px solid #22C55E' : '3px solid transparent'
-                                    }}>
-                                        <span style={{
-                                            ...styles.playerName,
-                                            color: match.player2Name === 'TBD' ? '#8B8BA7' : '#fff',
-                                            fontWeight: match.winnerName === match.player2Name ? '700' : '400'
-                                        }}>
-                                            {match.winnerName === match.player2Name && match.winnerName ? '🏆 ' : ''}
-                                            {match.player2Name}
-                                        </span>
-                                        {match.player2Score !== null && match.player2Score !== undefined && (
-                                            <span style={styles.score}>{match.player2Score}</span>
-                                        )}
-                                    </div>
-
-                                    {/* Action Buttons */}
-                                    {(match.status === 'Pending' || match.status === 'InProgress') &&
-                                        match.player1Name !== 'TBD' &&
-                                        match.player2Name !== 'TBD' && (
-                                            <div style={styles.actions}>
-                                                <button
-                                                    style={styles.reportBtn}
-                                                    onClick={() => setReportModal({
-                                                        matchId: match.matchId,
-                                                        player1: match.player1Name,
-                                                        player2: match.player2Name,
-                                                        nextMatchId: match.nextMatchId
-                                                    })}
-                                                >
-                                                    📊 Report Score
-                                                </button>
-                                                <button
-                                                    style={styles.disputeBtn}
-                                                    onClick={() => setDisputeModal({ matchId: match.matchId, player1: match.player1Name, player2: match.player2Name })}
-                                                >
-                                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Dispute
-                                                </button>
-                                            </div>
-                                        )}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                ))}
-            </div>
 
             {/* Report Score Modal */}
             {reportModal && (
@@ -507,6 +572,26 @@ const styles = {
     color: '#fff', border: 'none', borderRadius: '8px',
     padding: '12px', fontSize: '14px', fontWeight: '700', cursor: 'pointer'
   },
+  // Player List Styles
+  tabGroup: { display: 'flex', gap: '8px', backgroundColor: 'rgba(255,255,255,0.03)', padding: '4px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' },
+  tab: { background: 'none', border: 'none', padding: '8px 16px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s', borderRadius: '6px' },
+  playerList: { backgroundColor: '#0F0F1E', borderRadius: '16px', border: '1px solid rgba(108,99,255,0.2)', padding: '8px', overflow: 'hidden' },
+  listHeader: { display: 'flex', padding: '16px 24px', borderBottom: '1px solid rgba(255,255,255,0.05)', color: '#8B8BA7', fontSize: '12px', fontWeight: '700', letterSpacing: '1px', textTransform: 'uppercase' },
+  listRow: { display: 'flex', padding: '16px 24px', borderBottom: '1px solid rgba(255,255,255,0.03)', alignItems: 'center', transition: 'background 0.2s' },
+  col: { flex: 1, fontSize: '14px', color: '#fff' },
+  pAvatar: { width: '32px', height: '32px', borderRadius: '50%', backgroundColor: 'rgba(108,99,255,0.1)', border: '1px solid rgba(108,99,255,0.3)' },
+  pName: { fontWeight: '600', color: '#fff', fontSize: '15px' },
+
+  // Timer & Waiting Styles
+  timerBadge: { backgroundColor: 'rgba(108,99,255,0.15)', color: '#6C63FF', padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '700', border: '1px solid rgba(108,99,255,0.3)', letterSpacing: '0.5px' },
+  waitingState: { display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '80px 40px', backgroundColor: '#0F0F1E', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.05)', textAlign: 'center', marginTop: '20px' },
+  waitingIcon: { fontSize: '64px', marginBottom: '24px', filter: 'drop-shadow(0 0 20px rgba(108,99,255,0.3))' },
+  waitingTitle: { fontFamily: 'Rajdhani, sans-serif', fontSize: '32px', fontWeight: '700', color: '#fff', marginBottom: '12px' },
+  waitingText: { color: '#8B8BA7', fontSize: '16px', lineHeight: '1.6', maxWidth: '500px', marginBottom: '40px' },
+  statsRow: { display: 'flex', gap: '32px' },
+  statBox: { display: 'flex', flexDirection: 'column', gap: '4px' },
+  statVal: { fontSize: '24px', fontWeight: '700', color: '#6C63FF', fontFamily: 'Rajdhani, sans-serif' },
+  statLabel: { fontSize: '11px', color: '#8B8BA7', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '1px' },
 }
 
 export default BracketPage

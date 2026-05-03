@@ -49,6 +49,7 @@ namespace VaultBackend.Controllers
                     OrganizerName = t.Organizer.Username,
                     OrganizerId = t.OrganizerId,
                     CreatedAt = t.CreatedAt,
+                    StartsAt = t.StartsAt
                 })
                 .ToListAsync();
 
@@ -76,6 +77,7 @@ namespace VaultBackend.Controllers
                 IsVerifiedCafe = t.IsVerifiedCafe,
                 TargetInstitution = t.TargetInstitution,
                 OrganizerName = t.Organizer.Username, OrganizerId = t.OrganizerId, CreatedAt = t.CreatedAt,
+                StartsAt = t.StartsAt
             });
         }
 
@@ -100,6 +102,7 @@ namespace VaultBackend.Controllers
                 IsVerifiedCafe = dto.IsVerifiedCafe,
                 TargetInstitution = string.IsNullOrEmpty(dto.TargetInstitution) ? null : dto.TargetInstitution,
                 OrganizerId = userId,
+                StartsAt = dto.StartsAt == default ? DateTime.UtcNow.AddDays(7) : dto.StartsAt
             };
 
             _db.Tournaments.Add(tournament);
@@ -192,7 +195,8 @@ namespace VaultBackend.Controllers
             tournament.MaxSlots = dto.MaxSlots;
             tournament.City = dto.City;
             tournament.Rules = dto.Rules;
-            tournament.AccentColor = dto.AccentColor;
+            tournament.IsVerifiedCafe = dto.IsVerifiedCafe;
+            tournament.StartsAt = dto.StartsAt;
 
             await _db.SaveChangesAsync();
             return Ok(new { message = "Tournament updated successfully" });
@@ -248,6 +252,45 @@ namespace VaultBackend.Controllers
             await _db.SaveChangesAsync();
 
             return Ok(new { message = "Tournament deleted. All entry fees refunded." });
+        }
+
+        // GET: All players in a tournament (Aggressive Discovery)
+        [HttpGet("{id}/players")]
+        public async Task<IActionResult> GetPlayers(int id)
+        {
+            // 1. Get official registrations
+            var regs = await _db.TournamentRegistrations
+                .Where(r => r.TournamentId == id)
+                .Include(r => r.User)
+                .Select(r => r.User)
+                .ToListAsync();
+
+            // 2. Get players from bracket matches (as fallback/supplement)
+            var bracketPlayers = await _db.Matches
+                .Where(m => m.Bracket.TournamentId == id)
+                .Include(m => m.Player1)
+                .Include(m => m.Player2)
+                .SelectMany(m => new[] { m.Player1, m.Player2 })
+                .Where(u => u != null)
+                .ToListAsync();
+
+            // 3. Merge and De-duplicate
+            var allPlayers = regs.Concat(bracketPlayers)
+                .Where(u => u != null)
+                .GroupBy(u => u!.UserId)
+                .Select(g => g.First())
+                .Select(u => new {
+                    u!.UserId,
+                    u.Username,
+                    u.GameTag,
+                    Rank = u.Rank.ToString(),
+                    u.Institution,
+                    u.City,
+                    RegisteredAt = DateTime.UtcNow // Meta info
+                })
+                .ToList();
+
+            return Ok(allPlayers);
         }
     }
 }
